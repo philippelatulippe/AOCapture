@@ -1,0 +1,6 @@
+[submodule "PcapngFile"]
+	path = PcapngFile
+	url = https://github.com/awalsh128/PcapngFile/
+[submodule "AOtomation.Messaging"]
+	path = AOtomation.Messaging
+	url = https://github.com/SmokeLounge/AOtomation.Messaging.git
