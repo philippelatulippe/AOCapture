@@ -4,3 +4,6 @@
 [submodule "AOtomation.Messaging"]
 	path = AOtomation.Messaging
 	url = https://github.com/SmokeLounge/AOtomation.Messaging.git
+[submodule "ZLIB.NET"]
+	path = ZLIB.NET
+	url = https://github.com/philippelatulippe/ZLIB.NET.git
