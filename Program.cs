@@ -9,6 +9,7 @@ using System.IO;
 using System.Net;
 using ComponentAce.Compression.Libs.zlib;
 
+using SmokeLounge.AOtomation.Messaging.Messages.N3Messages;
 namespace AOCapture
 {
     class Program
@@ -211,6 +212,37 @@ namespace AOCapture
         static void savePacket(int srcPort, Message message, Stream data){
             if (message != null) {
                 Console.WriteLine(srcPort+" "+message.Body.GetType().Name+" size="+message.Header.Size);
+
+                //What packet do you get when you literally walk away from a conversation?  Change playfield?
+                //Can you have multiple conversations simultaneously?
+                //You still need to fix your TCP parser to reassemble packets (erp)
+                //What about timing information (for animations and reponses)? (probably also requires refactoring)
+
+                if (message.Body is KnuBotOpenChatWindowMessage){
+                    KnuBotOpenChatWindowMessage body = (KnuBotOpenChatWindowMessage)message.Body;
+                    string conversationIdentity =  body.Identity.Instance.ToString();
+                    Console.WriteLine("    Begin conversation with " +conversationIdentity);
+                }else if(message.Body is  KnuBotAnswerListMessage) {
+                    KnuBotAnswerListMessage body = (KnuBotAnswerListMessage)message.Body;
+                    Console.WriteLine("    Dialog Options: ");
+                    foreach(var option in body.DialogOptions){
+                        Console.WriteLine("    - "+option.Text);
+                    }
+                }else if(message.Body is KnuBotAnswerMessage){
+                    KnuBotAnswerMessage body = (KnuBotAnswerMessage)message.Body;
+                    string conversationIdentity = body.Identity.Instance.ToString();
+                    Console.WriteLine("Answered with option: " + body.Answer);
+                    Console.WriteLine("ok?");
+                }else if(message.Body is KnuBotAppendTextMessage){
+                    KnuBotAppendTextMessage body = (KnuBotAppendTextMessage)message.Body;
+                    string conversationIdentity = body.Identity.Instance.ToString();
+                    Console.WriteLine(conversationIdentity + " says: " + body.Text);
+                    Console.WriteLine("ok?");
+                }else if(message.Body is CharacterActionMessage){
+                    CharacterActionMessage body = (CharacterActionMessage)message.Body;
+                    string identity = body.Identity.Instance.ToString();
+                    Console.WriteLine("    Character " + identity + " performs action "+body.Action.ToString());
+                }
             } else {
                 data.Position = 0;
                 byte[] buffer = new byte[20];
@@ -225,13 +257,13 @@ namespace AOCapture
                 }
 
                 if (countRead <= 0) {
-                    Console.WriteLine(srcPort + "Dunno lol EMPTY PACKET!?");
+                    Console.WriteLine(srcPort + " Could not deserialize: EMPTY PACKET");
                 } else if (allZero) {
-                    Console.WriteLine(srcPort + " Dunno lol ALL ZERO");
+                    Console.WriteLine(srcPort + " Could not deserialize: ZEROES EVERYWHERE");
                 } else if (countRead > 0) {
-                    Console.WriteLine(srcPort + " Dunno lol " + BitConverter.ToString(buffer));
+                    Console.WriteLine(srcPort + " Could not deserialize, unknown packet: " + BitConverter.ToString(buffer));
                 } else {
-                    Console.WriteLine(srcPort + " Dunno lol NO DATA");
+                    Console.WriteLine(srcPort + " Could not deserialize, empty packet");
                 }
             }
         }
